@@ -7,9 +7,16 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-const whitelist = ['http://localhost:3000', 'http://localhost:8000']
 
-const corsOptions = {
+//Allowed Only this two url to comunicate
+const whitelist = ['http://localhost:3000', 'http://localhost:8000']
+//Check for incoming request
+
+const corsOption1 = {
+    origin: ["http://localhost:3000"], credentials: true,
+}
+
+const corsOptions2 = {
     origin: function (origin, callback) {
         if (whitelist.indexOf(origin) !== -1) {
             callback(null, true)
@@ -18,8 +25,13 @@ const corsOptions = {
         }
     }
 }
-//app.use(cors(corsOptions));
+//Enable cors with all Opttions
 
+//app.use(cors(corsOptions1));
+//app.use(cors(corsOptions2));
+
+
+//Accept All request 
 app.use(cors('*'));
 
 app.get('/', (req, res) => {
