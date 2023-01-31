@@ -1,11 +1,13 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const bodyParser = require("body-parser");
 
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(bodyParser.json());
 
 
 //Allowed Only this two url to comunicate
@@ -34,9 +36,25 @@ const corsOptions2 = {
 //Accept All request 
 app.use(cors('*'));
 
-app.get('/', (req, res) => {
-    res.send('geting called');
-})
+
+//! Health Check
+app.get("/", (req, res) => {
+    const data = {
+        uptime: process.uptime(),
+        message: 'Ok',
+        date: new Date()
+    }
+    try {
+        res.status(200).send(data);
+    } catch (error) {
+        data.message = error;
+        res.status(503).send();
+    }
+
+});
+
+
+
 
 const PORT = 5000;
 const DB_URL = "mongodb://localhost:27017/nsecdb"
