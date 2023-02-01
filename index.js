@@ -4,7 +4,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 
 const userRouter = require("./Router/User.Router")
-const productRouter = require("./Router/Product.Router")
+// const productRouter = require("./Router/Product.Router")
 
 const app = express();
 
@@ -56,6 +56,7 @@ app.get("/", (req, res) => {
 
 });
 
+app.use('/api/user', userRouter)
 
 
 
