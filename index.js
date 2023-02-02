@@ -1,43 +1,54 @@
+//!Package we to create Backend Server for API Development
+const dotenv = require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
-const cors = require("cors");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 
-const userRouter = require("./Router/User.Router")
-// const productRouter = require("./Router/Product.Router")
 
+
+
+
+
+
+
+
+//! Error Handle 
+const errorHandler = require("./src/Middleware/Error.Handler");
+
+//! Cookies Handle
+const cookieParser = require("cookie-parser");
+
+//! Router Block
+const userRoute = require("./src/Router/User.Router");
+
+
+const PORT = process.env.PORT || 5000;
+const MONGODB_URL = process.env.MONGO_URI
+
+
+//! Create Express App
 const app = express();
 
-app.use(express.urlencoded({ extended: true }));
+
+
+
+
+
+//! Configure APP
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cookieParser());
+app.use(
+    cors({
+        origin: ["http://localhost:3000"], credentials: true,
+    })
+);
 
 
-//Allowed Only this two url to comunicate
-const whitelist = ['http://localhost:3000', 'http://localhost:8000']
-//Check for incoming request
-
-const corsOption1 = {
-    origin: ["http://localhost:3000"], credentials: true,
-}
-
-const corsOptions2 = {
-    origin: function (origin, callback) {
-        if (whitelist.indexOf(origin) !== -1) {
-            callback(null, true)
-        } else {
-            callback(new Error('Not allowed by CORS'))
-        }
-    }
-}
-//Enable cors with all Opttions
-
-//app.use(cors(corsOptions1));
-//app.use(cors(corsOptions2));
 
 
-//Accept All request 
-app.use(cors('*'));
 
 
 //! Health Check
@@ -56,21 +67,26 @@ app.get("/", (req, res) => {
 
 });
 
-app.use('/api/user', userRouter)
+//! Route Request
+app.use('/api/user', userRoute)
 
 
 
-const PORT = 5000;
-const DB_URL = "mongodb://localhost:27017/nsecdb"
 
 
-mongoose.connect(DB_URL)
-    .then(
-        app.listen(PORT, () => { console.log(`Application is runing on ${PORT}`) })
-    )
-    .catch((error) => {
-        console.log(`Db is not connected`)
-        console.log(error)
-    })
+// Error Middleware
+app.use(errorHandler);
+
+mongoose.set('strictQuery', true)
+//! Start Server on 5000
+
+
+
+mongoose.connect(process.env.MONGO_URI).then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server Running on port ${PORT}`);
+    });
+}).catch((err) => console.log(err));
+
 
 
